@@ -130,7 +130,7 @@ GetAgeName(hourDiff) {
 
 CanTrain() {
     xOffset := CanvasX + GetCanvasOffset(104)
-    yOffset := CanvasY + GetCanvasOffset(261) ; 259
+    yOffset := CanvasY + GetCanvasOffset(259)
     color := PixelGetColor(xOffset, yOffset)
     if (color = 0xF7E8CE or color = 0xF9EACF) {
         return False
@@ -169,18 +169,18 @@ CareLoop() {
     shouldTrainThisHour := TrainFrequency > 0 and Mod(hourDiff, TrainFrequency) = 0
     hasTrainedThisHour := lastTrainDiff = hourDiff
 
-    WriteLog(logLoopMsgPrefix " 🔝 Start (hasRunThisHour: " hasRunThisHour ", hourDiff: " hourDiff ", ageName: " ageName  ", FeedTarget: " FeedTarget ", FeedFrequency: " FeedFrequency ", CureFrequency: " CureFrequency ", CleanFrequency: " CleanFrequency ", TrainFrequency: " TrainFrequency ")")
+    WriteLog(logLoopMsgPrefix " 🔝 Start " hourDiff " " ageName " (FeedFrequency: " FeedFrequency ", CureFrequency: " CureFrequency ", CleanFrequency: " CleanFrequency ", TrainFrequency: " TrainFrequency ")")
 
     ; Exit if Pockest left cause nothing to do
     if (ageName = "Age6") {
-        MsgBox("Congrats, your Pockest should have left your nest!")
         WriteLog(logLoopMsgPrefix " 🔚 Exit <Age6>")
         Exit()
     }
 
     ; Exit if we've already run the script this hour
+    WriteLog(logLoopMsgPrefix " 🕑 Task Check (hasRunThisHour: " hasRunThisHour ", shouldTrainThisHour: " shouldTrainThisHour ", hasTrainedThisHour: " hasTrainedThisHour ")")
     if (hasRunThisHour and (not shouldTrainThisHour or hasTrainedThisHour)) {
-        WriteLog(logLoopMsgPrefix " 🔚 Exit <NothingToDo> (hasRunThisHour: " hasRunThisHour ", shouldTrainThisHour: " shouldTrainThisHour ", hasTrainedThisHour: " hasTrainedThisHour ")")
+        WriteLog(logLoopMsgPrefix " 🔚 Exit <NothingToDo>")
         Exit()
     }
 
@@ -198,33 +198,32 @@ CareLoop() {
 
     ; Feed?
     if (FeedFrequency > 0 and Mod(hourDiff, FeedFrequency) = 0) {
+        WriteLog(logLoopMsgPrefix " 🍎 Feeding " curFeed " -> " FeedTarget " (" feedQty ")")
         ResetWindow()
         curFeed := GetCurFeedLvl()
         feedQty := Max(FeedTarget - curFeed, 0)
-        WriteLog(logLoopMsgPrefix " 🕑 Feed (curFeed: " curFeed ", feedQty: " feedQty ")")
         Loop feedQty {
             ClickCareButton(0)
             MenuStatusReset()
-            WriteLog(logLoopMsgPrefix " 🟢 Feed")
             Sleep 100
         }
     }
 
     ; Cure?
     if (CureFrequency > 0 and Mod(hourDiff, CureFrequency) = 0 and not hasRunThisHour) {
+        WriteLog(logLoopMsgPrefix " 🩹 Curing")
         ResetWindow()
         ClickCareButton(1)
         MenuStatusReset()
-        WriteLog(logLoopMsgPrefix " 🟢 Cure")
         Sleep 100
     }
 
     ; Clean?
     if (CleanFrequency > 0 and Mod(hourDiff, CleanFrequency) = 0 and not hasRunThisHour) {
+        WriteLog(logLoopMsgPrefix " 🛁 Cleaning")
         ResetWindow()
         ClickCareButton(2)
         MenuStatusReset()
-        WriteLog(logLoopMsgPrefix " 🟢 Clean")
         Sleep 100
     }
 
@@ -232,15 +231,15 @@ CareLoop() {
     if (shouldTrainThisHour) {
         ResetWindow()
         ableToTrain := CanTrain()
-        WriteLog(logLoopMsgPrefix " 🕑 Train (ableToTrain: " ableToTrain ", lastTrainDiff: " lastTrainDiff ")")
+        WriteLog(logLoopMsgPrefix " 👟 Training Check (ableToTrain: " ableToTrain ", lastTrainDiff: " lastTrainDiff ")")
         if (ableToTrain) {
+            WriteLog(logLoopMsgPrefix " 👟 Training")
             ClickBottomButton(1)
             Sleep 100
             SelectTrainingType(Stat)
             Sleep 100
             ClickContinue()
             lastTrainDiff := hourDiff
-            WriteLog(logLoopMsgPrefix " 🟢 Train")
         }
     }
 
@@ -259,4 +258,4 @@ CareLoop() {
 }
 
 WriteLog("=====================================================================================================")
-WriteLog("📋 DateOfBirth: " DateOfBirth ", Divergence1: " Divergence1 ", Divergence2: " Divergence2 ", Stat: " Stat )
+WriteLog("📋 " DateOfBirth " | " Divergence1 Divergence2 Stat )
