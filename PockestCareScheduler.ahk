@@ -248,7 +248,7 @@ CareLoop() {
     ; Train?
     if (not Stat = "") {
         trainingProgress := GetTrainingProgress()
-        WriteLog(logLoopMsgPrefix " 👟 Training Check (trainingProgress: " (Round(trainingProgress, 3) * 100) "%)")
+        WriteLog(logLoopMsgPrefix " 👟 Training Check (trainingProgress: " (Round(trainingProgress * 100, 3)) "%)")
         if (trainingProgress = 1) {
             WriteLog(logLoopMsgPrefix " 👟 Training")
             ClickBottomButton(1)
@@ -263,10 +263,6 @@ CareLoop() {
     }
 
     WriteLog(logLoopMsgPrefix " 🔚 Exit <Complete>")
-}
-
-+F1:: {
-    GetTrainingProgress()
 }
 
 +F12:: {
