@@ -194,7 +194,7 @@ CareLoop() {
     }
 
     ; Exit if we've already run the script this hour
-    WriteLog(logLoopMsgPrefix " 🕑 Task Check (hasRunThisHour: " hasRunThisHour ", attempToTrain: " attempToTrain)
+    WriteLog(logLoopMsgPrefix " 🕑 Task Check (hasRunThisHour: " hasRunThisHour ", attempToTrain: " attempToTrain ")")
     if (hasRunThisHour and not attempToTrain) {
         WriteLog(logLoopMsgPrefix " 🔚 Exit <NothingToDo>")
         Exit()
