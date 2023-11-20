@@ -5,14 +5,14 @@ ConfigFile := "./PockestCareScheduler.ini"
 CareDelay := 60000
 DefaultSize := 301
 MaxFeed := 6
+ScriptId := RandomId(5)
 
 ; read config section - SETTINGS
-PockestUrl := IniRead(ConfigFile, "SETTINGS", "PockestUrl",  "https://www.streetfighter.com/6/buckler/minigame")
+Debug := IniRead(ConfigFile, "SETTINGS", "Debug", "True") = "True"
 WindowTitle := IniRead(ConfigFile, "SETTINGS", "WindowTitle", "Pockest | Buckler's Boot Camp | STREET FIGHTER 6 | CAPCOM")
 Size := IniRead(ConfigFile, "SETTINGS", "Size", DefaultSize)
 CanvasX := IniRead(ConfigFile, "SETTINGS", "CanvasX", 333)
 CanvasY := IniRead(ConfigFile, "SETTINGS", "CanvasY", 444)
-RefreshDelay := IniRead(ConfigFile, "SETTINGS", "RefreshDelay", 1800000)
 
 ; read config section - CARE_PLAN
 DateOfBirth := IniRead(ConfigFile, "CARE_PLAN", "DateOfBirth", A_Now)
@@ -27,6 +27,12 @@ RoutePlan["Age2"] := IniRead(ConfigFile, "ROUTE_" Divergence1 Divergence2, "Age2
 RoutePlan["Age3"] := IniRead(ConfigFile, "ROUTE_" Divergence1 Divergence2, "Age3")
 RoutePlan["Age4"] := IniRead(ConfigFile, "ROUTE_" Divergence1 Divergence2, "Age4")
 RoutePlan["Age5"] := IniRead(ConfigFile, "ROUTE_" Divergence1 Divergence2, "Age5")
+
+WriteLog(msg) {
+    if (Debug) {
+        FileAppend("[" ScriptId "] " A_Now ": " msg "`n", "./PockestCareScheduler-log.txt", "UTF-8")
+    }
+}
 
 ValidateWindow() {
     WinWait(WindowTitle, , 5)
@@ -132,19 +138,27 @@ CanTrain() {
     return True
 }
 
+RandomId(length) {
+    id := ""
+    str := "0123456789abcdefghijklmnopqrstuvwxyz"
+    splitStr := StrSplit(str)
+    Loop length {
+        rndIndex := Random(1, splitStr.Length)
+        id .= splitStr[rndIndex] 
+    }
+    return id
+}
+
 CareLoop() {
     Static lastHourDiff := -1
     Static lastTrainDiff := -1
+
+    loopId := RandomId(10)
     hourDiff := DateDiff(A_Now, DateOfBirth, "hours")
     hasRunThisHour := hourDiff = lastHourDiff
     lastHourDiff := hourDiff
-
     ageName := GetAgeName(hourDiff)
-
-    if (ageName = "Age6") {
-        MsgBox("Congrats, your Pockest should have left your nest!")
-        Exit()
-    }
+    logLoopMsgPrefix := "♻️ [" loopId "]"
 
     FeedFrequency := IniRead(ConfigFile, "PLAN_" RoutePlan[ageName], "FeedFrequency", 0)
     FeedTarget := IniRead(ConfigFile, "PLAN_" RoutePlan[ageName], "FeedTarget", 0)
@@ -155,14 +169,25 @@ CareLoop() {
     shouldTrainThisHour := TrainFrequency > 0 and Mod(hourDiff, TrainFrequency) = 0
     hasTrainedThisHour := lastTrainDiff = hourDiff
 
+    WriteLog(logLoopMsgPrefix " 🔝 Start (hasRunThisHour: " hasRunThisHour ", hourDiff: " hourDiff ", ageName: " ageName  ", FeedTarget: " FeedTarget ", FeedFrequency: " FeedFrequency ", CureFrequency: " CureFrequency ", CleanFrequency: " CleanFrequency ", TrainFrequency: " TrainFrequency ")")
+
+    ; Exit if Pockest left cause nothing to do
+    if (ageName = "Age6") {
+        MsgBox("Congrats, your Pockest should have left your nest!")
+        WriteLog(logLoopMsgPrefix " 🔚 Exit <Age6>")
+        Exit()
+    }
+
     ; Exit if we've already run the script this hour
     if (hasRunThisHour and (not shouldTrainThisHour or hasTrainedThisHour)) {
+        WriteLog(logLoopMsgPrefix " 🔚 Exit <NothingToDo> (hasRunThisHour: " hasRunThisHour ", shouldTrainThisHour: " shouldTrainThisHour ", hasTrainedThisHour: " hasTrainedThisHour ")")
         Exit()
     }
 
     ; Exit if we can't find the window and alert the user
     if (not ValidateWindow()) {
         MsgBox("Cannot find Window. Please open pockest in a separate browser window and ensure the browser window title matches the WindowTitle variable. You can set this within the config ini file.")
+        WriteLog(logLoopMsgPrefix " 🔚 Exit <NoWindow>")
         Exit()
     }
 
@@ -174,10 +199,13 @@ CareLoop() {
     ; Feed?
     if (FeedFrequency > 0 and Mod(hourDiff, FeedFrequency) = 0) {
         ResetWindow()
-        feedQty := Max(FeedTarget - GetCurFeedLvl(), 0)
+        curFeed := GetCurFeedLvl()
+        feedQty := Max(FeedTarget - curFeed, 0)
+        WriteLog(logLoopMsgPrefix " 🕑 Feed (curFeed: " curFeed ", feedQty: " feedQty ")")
         Loop feedQty {
             ClickCareButton(0)
             MenuStatusReset()
+            WriteLog(logLoopMsgPrefix " 🟢 Feed")
             Sleep 100
         }
     }
@@ -187,6 +215,7 @@ CareLoop() {
         ResetWindow()
         ClickCareButton(1)
         MenuStatusReset()
+        WriteLog(logLoopMsgPrefix " 🟢 Cure")
         Sleep 100
     }
 
@@ -195,27 +224,39 @@ CareLoop() {
         ResetWindow()
         ClickCareButton(2)
         MenuStatusReset()
+        WriteLog(logLoopMsgPrefix " 🟢 Clean")
         Sleep 100
     }
 
     ; Train?
-    ResetWindow()
-    if (shouldTrainThisHour and CanTrain()) {
+    if (shouldTrainThisHour) {
         ResetWindow()
-        ClickBottomButton(1)
-        Sleep 100
-        SelectTrainingType(Stat)
-        Sleep 100
-        ClickContinue()
-        lastTrainDiff := hourDiff
+        ableToTrain := CanTrain()
+        WriteLog(logLoopMsgPrefix " 🕑 Train (ableToTrain: " ableToTrain ", lastTrainDiff: " lastTrainDiff ")")
+        if (ableToTrain) {
+            ClickBottomButton(1)
+            Sleep 100
+            SelectTrainingType(Stat)
+            Sleep 100
+            ClickContinue()
+            lastTrainDiff := hourDiff
+            WriteLog(logLoopMsgPrefix " 🟢 Train")
+        }
     }
+
+    WriteLog(logLoopMsgPrefix " 🔚 Exit <Complete>")
 }
 
 +F12:: {
     Static on := False
     If (on := !on) {
+        WriteLog("📅 Start Scheduler")
         SetTimer(CareLoop, CareDelay), SoundBeep(1500), CareLoop()
     } Else {
+        WriteLog("📅 Stop Scheduler")
         SetTimer(CareLoop, 0), SoundBeep(1000)
     }
 }
+
+WriteLog("=====================================================================================================")
+WriteLog("📋 DateOfBirth: " DateOfBirth ", Divergence1: " Divergence1 ", Divergence2: " Divergence2 ", Stat: " Stat )
