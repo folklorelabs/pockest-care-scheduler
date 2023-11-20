@@ -172,11 +172,19 @@ CareLoop() {
     Static trainingProgress := 0
 
     loopId := RandomId(10)
-    hourDiff := DateDiff(A_Now, DateOfBirth, "hours")
+    loopOffset := 5
+    minDiff := DateDiff(A_Now, DateOfBirth, "minutes") - loopOffset
+    hourDiff := Floor(minDiff / 60)
     hasRunThisHour := hourDiff = lastHourDiff
     lastHourDiff := hourDiff
     ageName := GetAgeName(hourDiff)
     logLoopMsgPrefix := "♻️ [" loopId "]"
+
+    ; Exit if Pockest left cause nothing to do
+    if (ageName = "Age6") {
+        WriteLog(logLoopMsgPrefix " 🔚 Exit <Age6>")
+        Exit()
+    }
 
     FeedFrequency := IniRead(ConfigFile, "PLAN_" RoutePlan[ageName], "FeedFrequency", 0)
     FeedTarget := IniRead(ConfigFile, "PLAN_" RoutePlan[ageName], "FeedTarget", 0)
@@ -185,13 +193,7 @@ CareLoop() {
 
     attempToTrain := not Stat = "" and trainingProgress > (11/12)
 
-    WriteLog(logLoopMsgPrefix " 🔝 Start " hourDiff " " ageName " (FeedFrequency: " FeedFrequency ", CureFrequency: " CureFrequency ", CleanFrequency: " CleanFrequency ")")
-
-    ; Exit if Pockest left cause nothing to do
-    if (ageName = "Age6") {
-        WriteLog(logLoopMsgPrefix " 🔚 Exit <Age6>")
-        Exit()
-    }
+    WriteLog(logLoopMsgPrefix " 🔝 " hourDiff "h " Mod(minDiff, 60) "m " ageName " (FeedFrequency: " FeedFrequency ", CureFrequency: " CureFrequency ", CleanFrequency: " CleanFrequency ")")
 
     ; Exit if we've already run the script this hour
     WriteLog(logLoopMsgPrefix " 🕑 Task Check (hasRunThisHour: " hasRunThisHour ", attempToTrain: " attempToTrain ")")
@@ -261,6 +263,10 @@ CareLoop() {
     }
 
     WriteLog(logLoopMsgPrefix " 🔚 Exit <Complete>")
+}
+
++F1:: {
+    GetTrainingProgress()
 }
 
 +F12:: {
