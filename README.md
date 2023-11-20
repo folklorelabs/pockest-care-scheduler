@@ -42,9 +42,9 @@ Care plan settings. Utilize [Pockest Guide on Steam](https://steamcommunity.com/
 - **Divergence2**: The "Age 4" path divergence as specified in the "Evolutionary Paths" section of the [Pockest Guide](https://steamcommunity.com/sharedfiles/filedetails/?id=3003515624#6460421).
     - Default: "R"
     - Type: String ("L", "R")
-- **Stat**: The stat with which to train the Pockest.
-    - Default: "P"
-    - Type: String ("P", "S", "T")
+- **Stat**: The stat with which to train the Pockest. Pass an empty string to skip training.
+    - Default: ""
+    - Type: String ("P", "S", "T", "")
 
 #### \[SETTINGS\]
 General settings used by the script. Defaults should be good for most users here.

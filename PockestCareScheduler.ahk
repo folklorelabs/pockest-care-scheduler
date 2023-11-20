@@ -18,7 +18,7 @@ CanvasY := IniRead(ConfigFile, "SETTINGS", "CanvasY", 444)
 DateOfBirth := IniRead(ConfigFile, "CARE_PLAN", "DateOfBirth", A_Now)
 Divergence1 := IniRead(ConfigFile, "CARE_PLAN", "Divergence1", "C")
 Divergence2 := IniRead(ConfigFile, "CARE_PLAN", "Divergence2", "R")
-Stat := IniRead(ConfigFile, "CARE_PLAN", "Stat", "T")
+Stat := IniRead(ConfigFile, "CARE_PLAN", "Stat", "")
 
 ; read config section - ROUTE
 RoutePlan := Map()
@@ -82,7 +82,7 @@ ClickContinue() {
 }
 
 ClickClose() {
-    offset := GetCanvasOffset(10)
+    offset := GetCanvasOffset(2)
     MouseClick "left", CanvasX + Size - offset, CanvasY + Size - offset
 }
 
@@ -129,13 +129,15 @@ GetAgeName(hourDiff) {
 }
 
 CanTrain() {
+    MouseGetPos(&x, &y)
     xOffset := CanvasX + GetCanvasOffset(104)
-    yOffset := CanvasY + GetCanvasOffset(259)
+    yOffset := CanvasY + GetCanvasOffset(258)
     color := PixelGetColor(xOffset, yOffset)
-    if (color = 0xF7E8CE or color = 0xF9EACF) {
-        return False
+    WriteLog("🎨 [CanTrain] Button Check: " color)
+    if (color = 0xC69A57) {
+        return True
     }
-    return True
+    return False
 }
 
 RandomId(length) {
@@ -166,7 +168,7 @@ CareLoop() {
     CleanFrequency := IniRead(ConfigFile, "PLAN_" RoutePlan[ageName], "CleanFrequency", 0)
     TrainFrequency := IniRead(ConfigFile, "PLAN_" RoutePlan[ageName], "TrainFrequency", 0)
 
-    shouldTrainThisHour := TrainFrequency > 0 and Mod(hourDiff, TrainFrequency) = 0
+    shouldTrainThisHour := not Stat = "" and TrainFrequency > 0 and Mod(hourDiff, TrainFrequency) = 0
     hasTrainedThisHour := lastTrainDiff = hourDiff
 
     WriteLog(logLoopMsgPrefix " 🔝 Start " hourDiff " " ageName " (FeedFrequency: " FeedFrequency ", CureFrequency: " CureFrequency ", CleanFrequency: " CleanFrequency ", TrainFrequency: " TrainFrequency ")")
@@ -196,12 +198,16 @@ CareLoop() {
     ReloadWindow()
     Sleep 5000
 
+    ; In case of evolution
+    ClickContinue()
+    Sleep 100
+
     ; Feed?
-    if (FeedFrequency > 0 and Mod(hourDiff, FeedFrequency) = 0) {
-        WriteLog(logLoopMsgPrefix " 🍎 Feeding " curFeed " -> " FeedTarget " (" feedQty ")")
+    if (FeedFrequency > 0 and Mod(hourDiff, FeedFrequency) = 0 and not hasRunThisHour) {
         ResetWindow()
         curFeed := GetCurFeedLvl()
         feedQty := Max(FeedTarget - curFeed, 0)
+        WriteLog(logLoopMsgPrefix " 🍎 Feeding " curFeed " -> " FeedTarget " (" feedQty ")")
         Loop feedQty {
             ClickCareButton(0)
             MenuStatusReset()
@@ -239,6 +245,8 @@ CareLoop() {
             SelectTrainingType(Stat)
             Sleep 100
             ClickContinue()
+            Sleep 15000
+            ClickClose()
             lastTrainDiff := hourDiff
         }
     }
