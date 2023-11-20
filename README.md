@@ -42,7 +42,7 @@ Care plan settings. Utilize [Pockest Guide on Steam](https://steamcommunity.com/
 - **Divergence2**: The "Age 4" path divergence as specified in the "Evolutionary Paths" section of the [Pockest Guide](https://steamcommunity.com/sharedfiles/filedetails/?id=3003515624#6460421).
     - Default: "R"
     - Type: String ("L", "R")
-- **Stat**: The stat with which to train the Pockest. Pass an empty string to skip training.
+- **Stat**: The stat with which to train the Pockest. The script will attempt to read the current progress based on the button fill and attempt to train when it is ready. Pass an empty string to skip training.
     - Default: ""
     - Type: String ("P", "S", "T", "")
 
@@ -72,9 +72,6 @@ Settings to determine the different care plans available. Defaults should be goo
     - Default: 0
     - Type: Number
 - **CleanFrequency**: The frequency with which to clean the Pockest (in hours). Use a value of 0 to skip cleaning. Example: a value of 12 would mean the script will clean every 12 hours.
-    - Default: 0
-    - Type: Number
-- **TrainFrequency**: The frequency with which to train the Pockest (in hours). Use a value of 0 to skip training. Example: a value of 12 would mean the script will train every 12 hours.
     - Default: 0
     - Type: Number
 - **CureFrequency**: The frequency with which to cure the Pockest (in hours). Use a value of 0 to skip curing. Example: a value of 12 would mean the script will cure every 12 hours.

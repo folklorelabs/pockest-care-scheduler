@@ -49,6 +49,7 @@ ResetWindow() {
 }
 
 ReloadWindow() {
+    ResetWindow()
     Send "{F5}"
 }
 
@@ -57,17 +58,20 @@ GetCanvasOffset(val) {
 }
 
 ClickCareButton(index) {
+    ResetWindow()
     yOffset := GetCanvasOffset(30)
     xButtonOffset := GetCanvasOffset(80)
     MouseClick "left", CanvasX + (Size / 2) + ((index - 1) * xButtonOffset), CanvasY + yOffset
 }
 
 ClickBottomButton(index) {
+    ResetWindow()
     yOffset := GetCanvasOffset(30)
     MouseClick "left", CanvasX + ((Size / 4) + 0.5) * index, CanvasY + Size - yOffset
 }
 
 SelectTrainingType(TrainStat) {
+    ResetWindow()
     TrainStatDict := Map()
     TrainStatDict["P"] := 0
     TrainStatDict["S"] := 1
@@ -77,24 +81,29 @@ SelectTrainingType(TrainStat) {
 }
 
 ClickContinue() {
+    ResetWindow()
     yOffset := GetCanvasOffset(70)
     MouseClick "left", CanvasX + (Size / 2), CanvasY + Size - yOffset
 }
 
 ClickClose() {
+    ResetWindow()
     offset := GetCanvasOffset(2)
     MouseClick "left", CanvasX + Size - offset, CanvasY + Size - offset
 }
 
 MenuStatusReset() {
+    ResetWindow()
     ClickBottomButton(2)
     Sleep 100
     ClickClose()
 }
 
 GetCurFeedLvl() {
+    ResetWindow()
     ClickBottomButton(2)
     Sleep 100
+    ResetWindow()
     xOffset := CanvasX + GetCanvasOffset(143)
     yOffset := CanvasY + GetCanvasOffset(86)
     heartOffset := GetCanvasOffset(25)
@@ -129,8 +138,8 @@ GetAgeName(hourDiff) {
 }
 
 CanTrain() {
-    MouseGetPos(&x, &y)
-    xOffset := CanvasX + GetCanvasOffset(104)
+    ResetWindow()
+    xOffset := CanvasX + GetCanvasOffset(105)
     yOffset := CanvasY + GetCanvasOffset(258)
     color := PixelGetColor(xOffset, yOffset)
     WriteLog("🎨 [CanTrain] Button Check: " color)
@@ -138,6 +147,24 @@ CanTrain() {
         return True
     }
     return False
+}
+
+GetTrainingProgress() {
+    ResetWindow()
+    xOffset := CanvasX + GetCanvasOffset(121)
+    yOffset := CanvasY + GetCanvasOffset(257)
+    buttonIconHeight := 33
+    numSteps := buttonIconHeight
+    stepOffset := buttonIconHeight / numSteps
+    curStep := 0
+    Loop numSteps {
+        color := PixelGetColor(xOffset, yOffset + buttonIconHeight - (stepOffset * (A_Index - 1)))
+        WriteLog("🎨 [GetTrainingProgress] " A_Index ": " color)
+        if (color = 0xC69A57 or color = 0xF8D95E or color = 0xCFBE6D or color = 0xB1B59F) {
+            curStep := A_Index
+        }
+    }
+    return curStep / numSteps
 }
 
 RandomId(length) {
@@ -153,7 +180,7 @@ RandomId(length) {
 
 CareLoop() {
     Static lastHourDiff := -1
-    Static lastTrainDiff := -1
+    Static trainingProgress := 0
 
     loopId := RandomId(10)
     hourDiff := DateDiff(A_Now, DateOfBirth, "hours")
@@ -166,12 +193,10 @@ CareLoop() {
     FeedTarget := IniRead(ConfigFile, "PLAN_" RoutePlan[ageName], "FeedTarget", 0)
     CureFrequency := IniRead(ConfigFile, "PLAN_" RoutePlan[ageName], "CureFrequency", 0)
     CleanFrequency := IniRead(ConfigFile, "PLAN_" RoutePlan[ageName], "CleanFrequency", 0)
-    TrainFrequency := IniRead(ConfigFile, "PLAN_" RoutePlan[ageName], "TrainFrequency", 0)
 
-    shouldTrainThisHour := not Stat = "" and TrainFrequency > 0 and Mod(hourDiff, TrainFrequency) = 0
-    hasTrainedThisHour := lastTrainDiff = hourDiff
+    attempToTrain := not Stat = "" and trainingProgress > (11/12)
 
-    WriteLog(logLoopMsgPrefix " 🔝 Start " hourDiff " " ageName " (FeedFrequency: " FeedFrequency ", CureFrequency: " CureFrequency ", CleanFrequency: " CleanFrequency ", TrainFrequency: " TrainFrequency ")")
+    WriteLog(logLoopMsgPrefix " 🔝 Start " hourDiff " " ageName " (FeedFrequency: " FeedFrequency ", CureFrequency: " CureFrequency ", CleanFrequency: " CleanFrequency ")")
 
     ; Exit if Pockest left cause nothing to do
     if (ageName = "Age6") {
@@ -180,8 +205,8 @@ CareLoop() {
     }
 
     ; Exit if we've already run the script this hour
-    WriteLog(logLoopMsgPrefix " 🕑 Task Check (hasRunThisHour: " hasRunThisHour ", shouldTrainThisHour: " shouldTrainThisHour ", hasTrainedThisHour: " hasTrainedThisHour ")")
-    if (hasRunThisHour and (not shouldTrainThisHour or hasTrainedThisHour)) {
+    WriteLog(logLoopMsgPrefix " 🕑 Task Check (hasRunThisHour: " hasRunThisHour ", attempToTrain: " attempToTrain ", trainingProgress: " (Round(trainingProgress, 3) * 100) "%)")
+    if (hasRunThisHour and not attempToTrain) {
         WriteLog(logLoopMsgPrefix " 🔚 Exit <NothingToDo>")
         Exit()
     }
@@ -194,7 +219,6 @@ CareLoop() {
     }
 
     ; Reload in case desync
-    ResetWindow()
     ReloadWindow()
     Sleep 5000
 
@@ -204,7 +228,6 @@ CareLoop() {
 
     ; Feed?
     if (FeedFrequency > 0 and Mod(hourDiff, FeedFrequency) = 0 and not hasRunThisHour) {
-        ResetWindow()
         curFeed := GetCurFeedLvl()
         feedQty := Max(FeedTarget - curFeed, 0)
         WriteLog(logLoopMsgPrefix " 🍎 Feeding " curFeed " -> " FeedTarget " (" feedQty ")")
@@ -218,7 +241,6 @@ CareLoop() {
     ; Cure?
     if (CureFrequency > 0 and Mod(hourDiff, CureFrequency) = 0 and not hasRunThisHour) {
         WriteLog(logLoopMsgPrefix " 🩹 Curing")
-        ResetWindow()
         ClickCareButton(1)
         MenuStatusReset()
         Sleep 100
@@ -227,18 +249,16 @@ CareLoop() {
     ; Clean?
     if (CleanFrequency > 0 and Mod(hourDiff, CleanFrequency) = 0 and not hasRunThisHour) {
         WriteLog(logLoopMsgPrefix " 🛁 Cleaning")
-        ResetWindow()
         ClickCareButton(2)
         MenuStatusReset()
         Sleep 100
     }
 
     ; Train?
-    if (shouldTrainThisHour) {
-        ResetWindow()
-        ableToTrain := CanTrain()
-        WriteLog(logLoopMsgPrefix " 👟 Training Check (ableToTrain: " ableToTrain ", lastTrainDiff: " lastTrainDiff ")")
-        if (ableToTrain) {
+    if (not Stat = "") {
+        trainingProgress := GetTrainingProgress()
+        WriteLog(logLoopMsgPrefix " 👟 Training Check (trainingProgress: " (Round(trainingProgress, 3) * 100) "%)")
+        if (trainingProgress = 1) {
             WriteLog(logLoopMsgPrefix " 👟 Training")
             ClickBottomButton(1)
             Sleep 100
