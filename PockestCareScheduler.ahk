@@ -167,6 +167,7 @@ CareLoop() {
     }
 
     ; Reload in case desync
+    ResetWindow()
     ReloadWindow()
     Sleep 5000
 
