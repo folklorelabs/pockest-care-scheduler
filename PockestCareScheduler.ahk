@@ -110,6 +110,7 @@ GetCurFeedLvl() {
     hearts := 0
     Loop MaxFeed {
         color := PixelGetColor(xOffset + (heartOffset * (A_Index - 1)), yOffset)
+        WriteLog("🍎🎨 [GetCurFeedLvl] " A_Index ": " color)
         if (not color = 0x8D8D8D) {
             hearts += 1
         }
@@ -137,18 +138,6 @@ GetAgeName(hourDiff) {
     return "Age6"
 }
 
-CanTrain() {
-    ResetWindow()
-    xOffset := CanvasX + GetCanvasOffset(105)
-    yOffset := CanvasY + GetCanvasOffset(258)
-    color := PixelGetColor(xOffset, yOffset)
-    WriteLog("🎨 [CanTrain] Button Check: " color)
-    if (color = 0xC69A57) {
-        return True
-    }
-    return False
-}
-
 GetTrainingProgress() {
     ResetWindow()
     xOffset := CanvasX + GetCanvasOffset(121)
@@ -159,7 +148,7 @@ GetTrainingProgress() {
     curStep := 0
     Loop numSteps {
         color := PixelGetColor(xOffset, yOffset + buttonIconHeight - (stepOffset * (A_Index - 1)))
-        WriteLog("🎨 [GetTrainingProgress] " A_Index ": " color)
+        WriteLog("👟🎨 [GetTrainingProgress] " A_Index ": " color)
         if (color = 0xC69A57 or color = 0xF8D95E or color = 0xCFBE6D or color = 0xB1B59F) {
             curStep := A_Index
         }
