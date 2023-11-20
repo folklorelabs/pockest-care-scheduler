@@ -141,6 +141,11 @@ CareLoop() {
 
     ageName := GetAgeName(hourDiff)
 
+    if (ageName = "Age6") {
+        MsgBox("Congrats, your Pockest should have left your nest!")
+        Exit()
+    }
+
     FeedFrequency := IniRead(ConfigFile, "PLAN_" RoutePlan[ageName], "FeedFrequency", 0)
     FeedTarget := IniRead(ConfigFile, "PLAN_" RoutePlan[ageName], "FeedTarget", 0)
     CureFrequency := IniRead(ConfigFile, "PLAN_" RoutePlan[ageName], "CureFrequency", 0)
