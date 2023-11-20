@@ -149,7 +149,7 @@ GetTrainingProgress() {
     Loop numSteps {
         color := PixelGetColor(xOffset, yOffset + buttonIconHeight - (stepOffset * (A_Index - 1)))
         WriteLog("👟🎨 [GetTrainingProgress] " A_Index ": " color)
-        if (color = 0xC69A57 or color = 0xF8D95E or color = 0xCFBE6D or color = 0xB1B59F or color = 0xC0B987) {
+        if (not 0xACB3A9 and not 0xA7AEA5 and not 0x14293A and not 0x1D2F3C and not 0x273843 and not 0xF9EACF and not 0xC1BBAB) {
             curStep := A_Index
         }
     }
@@ -191,13 +191,13 @@ CareLoop() {
     CureFrequency := IniRead(ConfigFile, "PLAN_" RoutePlan[ageName], "CureFrequency", 0)
     CleanFrequency := IniRead(ConfigFile, "PLAN_" RoutePlan[ageName], "CleanFrequency", 0)
 
-    attempToTrain := not Stat = "" and trainingProgress > (11/12)
+    attemptTrain := not Stat = "" and trainingProgress > (11/12)
 
     WriteLog(logLoopMsgPrefix " 🔝 " Floor(hourDiff / 24) "d " Mod(hourDiff, 24) ":" (StrLen(Mod(minDiff, 60)) = 1 ? "0" : "") Mod(minDiff, 60) " " ageName " (FeedFrequency: " FeedFrequency ", CureFrequency: " CureFrequency ", CleanFrequency: " CleanFrequency ")")
 
     ; Exit if we've already run the script this hour
-    WriteLog(logLoopMsgPrefix " 🕑 Task Check (hasRunThisHour: " hasRunThisHour ", attempToTrain: " attempToTrain ")")
-    if (hasRunThisHour and not attempToTrain) {
+    WriteLog(logLoopMsgPrefix " 🕑 Task Check (hasRunThisHour: " hasRunThisHour ", attemptTrain: " attemptTrain ")")
+    if (hasRunThisHour and not attemptTrain) {
         WriteLog(logLoopMsgPrefix " 🔚 Exit <NothingToDo>")
         Exit()
     }
