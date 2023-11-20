@@ -221,7 +221,7 @@ CareLoop() {
     if (FeedFrequency > 0 and Mod(hourDiff, FeedFrequency) = 0 and not hasRunThisHour) {
         curFeed := GetCurFeedLvl()
         feedQty := Max(FeedTarget - curFeed, 0)
-        WriteLog(logLoopMsgPrefix " 🍎 Feeding " curFeed " -> " FeedTarget " (" feedQty ")")
+        WriteLog(logLoopMsgPrefix " 🍎 Feeding " feedQty " (" curFeed " -> " FeedTarget ")")
         Loop feedQty {
             ClickCareButton(0)
             MenuStatusReset()
