@@ -193,7 +193,7 @@ CareLoop() {
 
     attempToTrain := not Stat = "" and trainingProgress > (11/12)
 
-    WriteLog(logLoopMsgPrefix " 🔝 " Floor(hourDiff / 24) "d " Mod(hourDiff, 24) ":" Mod(minDiff, 60) " " ageName " (FeedFrequency: " FeedFrequency ", CureFrequency: " CureFrequency ", CleanFrequency: " CleanFrequency ")")
+    WriteLog(logLoopMsgPrefix " 🔝 " Floor(hourDiff / 24) "d " Mod(hourDiff, 24) ":" (StrLen(Mod(minDiff, 60)) = 1 ? "0" : "") Mod(minDiff, 60) " " ageName " (FeedFrequency: " FeedFrequency ", CureFrequency: " CureFrequency ", CleanFrequency: " CleanFrequency ")")
 
     ; Exit if we've already run the script this hour
     WriteLog(logLoopMsgPrefix " 🕑 Task Check (hasRunThisHour: " hasRunThisHour ", attempToTrain: " attempToTrain ")")
@@ -248,7 +248,7 @@ CareLoop() {
     ; Train?
     if (not Stat = "") {
         trainingProgress := GetTrainingProgress()
-        WriteLog(logLoopMsgPrefix " 👟 Training Check (trainingProgress: " (Round(trainingProgress * 100, 3)) "%)")
+        WriteLog(logLoopMsgPrefix " 👟 Training Check (trainingProgress: " (Round(trainingProgress * 100, 1)) "%)")
         if (trainingProgress = 1) {
             WriteLog(logLoopMsgPrefix " 👟 Training")
             ClickBottomButton(1)
