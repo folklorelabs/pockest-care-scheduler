@@ -149,7 +149,7 @@ GetTrainingProgress() {
     Loop numSteps {
         color := PixelGetColor(xOffset, yOffset + buttonIconHeight - (stepOffset * (A_Index - 1)))
         WriteLog("👟🎨 [GetTrainingProgress] " A_Index ": " color)
-        if (not 0xACB3A9 and not 0xA7AEA5 and not 0x14293A and not 0x1D2F3C and not 0x273843 and not 0xF9EACF and not 0xC1BBAB) {
+        if (not color = 0xACB3A9 and not color = 0xA7AEA5 and not color = 0x14293A and not color = 0x1D2F3C and not color = 0x273843 and not color = 0xF9EACF and not color = 0xC1BBAB) {
             curStep := A_Index
         }
     }
@@ -263,6 +263,10 @@ CareLoop() {
     }
 
     WriteLog(logLoopMsgPrefix " 🔚 Exit <Complete>")
+}
+
++F1:: {
+    GetTrainingProgress()
 }
 
 +F12:: {
