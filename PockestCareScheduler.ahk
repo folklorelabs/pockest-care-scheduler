@@ -193,7 +193,7 @@ CareLoop() {
 
     attempToTrain := not Stat = "" and trainingProgress > (11/12)
 
-    WriteLog(logLoopMsgPrefix " 🔝 " hourDiff "h " Mod(minDiff, 60) "m " ageName " (FeedFrequency: " FeedFrequency ", CureFrequency: " CureFrequency ", CleanFrequency: " CleanFrequency ")")
+    WriteLog(logLoopMsgPrefix " 🔝 " Floor(hourDiff / 24) "d " Mod(hourDiff, 24) ":" Mod(minDiff, 60) " " ageName " (FeedFrequency: " FeedFrequency ", CureFrequency: " CureFrequency ", CleanFrequency: " CleanFrequency ")")
 
     ; Exit if we've already run the script this hour
     WriteLog(logLoopMsgPrefix " 🕑 Task Check (hasRunThisHour: " hasRunThisHour ", attempToTrain: " attempToTrain ")")
