@@ -31,15 +31,15 @@ It does this by systematically clicking the specified care options (FOOD, CURE, 
 #### \[CARE_PLAN\]
 Care plan settings. Utilize [Pockest Guide on Steam](https://steamcommunity.com/sharedfiles/filedetails/?id=3003515624) to figure out which stats to train and which path to target specific characters.
 
-![A tree of Pockest evolutionary paths. At 0d 12:00:00 the tree splits into A, B, or C branches. At 1d 12:00:00 each letter splits again into its own L or R branches.](https://steamuserimages-a.akamaihd.net/ugc/2233283241947427052/827EBBB3FA1C8E3B98E94551F18476DF03DE069E/)
+![A tree of Pockest evolutionary paths. After age 2 (0d 12:00:00), the tree splits into 3 branches (A, B, and C). After age 3 (1d 12:00:00), the tree splits again with each letter splitting into its own L and R branches.](https://steamuserimages-a.akamaihd.net/ugc/2233283241947427052/827EBBB3FA1C8E3B98E94551F18476DF03DE069E/)
 
-- **DateOfBirth**: The timestamp your Pockest was born in **YYYYMMDDhhmm** format (example November 15, 2023 5:01 PM would be 202311151701).
+- **DateOfBirth**: The timestamp your Pockest was born in **YYYYMMDDHHmm** format where YYYY = year, MM = month (01-12), DD = day (01-31), HH = hour (00-23), mm = minute (00-59). Example: November 15, 2023 5:01 PM would be 202311151701.
     - Default: \[time of script execution\]
     - Type: Number
-- **Divergence1**: The age 3 path divergence as specified in the "Evolutionary Paths" section of the [Pockest Guide](https://steamcommunity.com/sharedfiles/filedetails/?id=3003515624#6460421).
+- **Divergence1**: The "Age 3" path divergence as specified in the "Evolutionary Paths" section of the [Pockest Guide](https://steamcommunity.com/sharedfiles/filedetails/?id=3003515624#6460421).
     - Default: "C"
     - Type: String ("A", "B", "C")
-- **Divergence2**: The age 4 path divergence as specified in the "Evolutionary Paths" section of the [Pockest Guide](https://steamcommunity.com/sharedfiles/filedetails/?id=3003515624#6460421).
+- **Divergence2**: The "Age 4" path divergence as specified in the "Evolutionary Paths" section of the [Pockest Guide](https://steamcommunity.com/sharedfiles/filedetails/?id=3003515624#6460421).
     - Default: "R"
     - Type: String ("L", "R")
 - **Stat**: The stat with which to train the Pockest.

@@ -182,7 +182,7 @@ CareLoop() {
     }
 
     ; Cure?
-    if (not hasRunThisHour and CureFrequency > 0 and Mod(hourDiff, CureFrequency) = 0) {
+    if (CureFrequency > 0 and Mod(hourDiff, CureFrequency) = 0 and not hasRunThisHour) {
         ResetWindow()
         ClickCareButton(1)
         MenuStatusReset()
@@ -190,7 +190,7 @@ CareLoop() {
     }
 
     ; Clean?
-    if (not hasRunThisHour and CleanFrequency > 0 and Mod(hourDiff, CleanFrequency) = 0) {
+    if (CleanFrequency > 0 and Mod(hourDiff, CleanFrequency) = 0 and not hasRunThisHour) {
         ResetWindow()
         ClickCareButton(2)
         MenuStatusReset()
